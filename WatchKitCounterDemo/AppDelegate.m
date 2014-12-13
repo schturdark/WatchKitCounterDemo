@@ -7,8 +7,11 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
 
 @interface AppDelegate ()
+
+@property (strong, nonatomic) NSMutableArray *tempCounterData;
 
 @end
 
@@ -40,6 +43,25 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)application:(UIApplication *)application handleWatchKitExtensionRequest:(NSDictionary *)userInfo reply:(void(^)(NSDictionary *replyInfo))reply {
+    
+    reply(@{@"insert counter value":@(1)});
+    
+    NSString *counterValue = [userInfo objectForKey:@"counterValue"];
+    if (!self.tempCounterData) {
+        self.tempCounterData = [[NSMutableArray alloc] init];
+    }
+    
+    [self.tempCounterData addObject:counterValue];
+    
+    //Add the new counter value and reload the table view
+    AppDelegate *tmpDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    ViewController *vc = (ViewController *)((UINavigationController*)tmpDelegate.window.rootViewController).visibleViewController;
+    
+    vc.counterData = self.tempCounterData;
+    [vc.mainTableView reloadData];
 }
 
 @end
